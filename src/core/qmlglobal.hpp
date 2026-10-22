@@ -208,6 +208,13 @@ public:
 	/// This function is equivalent to @@Quickshell.Io.Process.startDetached().
 	Q_INVOKABLE static void execDetached(const qs::io::process::ProcessContext& context);
 
+	/// Returns an xdg-activation token for the most recent input, or an empty string if one
+	/// can't be requested.
+	///
+	/// Pass it to a launched program as `XDG_ACTIVATION_TOKEN` so the program can raise its
+	/// window for the input that launched it, e.g. an app that is already running.
+	Q_INVOKABLE static QString activationToken();
+
 	/// Returns a string usable for a @@QtQuick.Image.source for a given system icon.
 	///
 	/// > [!INFO] By default, icons are loaded from the theme selected by the qt platform theme,

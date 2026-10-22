@@ -34,6 +34,10 @@
 #include "rootwrapper.hpp"
 #include "scanenv.hpp"
 
+#ifdef QS_WAYLAND
+#include "../wayland/activation.hpp"
+#endif
+
 QuickshellSettings::QuickshellSettings() {
 	QObject::connect(
 	    static_cast<QGuiApplication*>(QGuiApplication::instance()), // NOLINT
@@ -328,6 +332,14 @@ void QuickshellGlobal::execDetached(const qs::io::process::ProcessContext& conte
 	}
 
 	process.startDetached();
+}
+
+QString QuickshellGlobal::activationToken() {
+#ifdef QS_WAYLAND
+	return qs::wayland::activation::requestActivationTokenNow();
+#else
+	return {};
+#endif
 }
 
 QString QuickshellGlobal::iconPath(const QString& icon) {
