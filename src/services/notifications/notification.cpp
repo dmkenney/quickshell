@@ -7,6 +7,7 @@
 #include <qloggingcategory.h>
 #include <qobject.h>
 #include <qproperty.h>
+#include <qstring.h>
 #include <qtmetamacros.h>
 #include <qtypes.h>
 
@@ -15,6 +16,10 @@
 #include "../../core/logcat.hpp"
 #include "dbusimage.hpp"
 #include "server.hpp"
+
+#ifdef QS_WAYLAND
+#include "../../wayland/activation.hpp"
+#endif
 
 namespace qs::service::notifications {
 
@@ -48,7 +53,16 @@ void NotificationAction::invoke() {
 		return;
 	}
 
-	NotificationServer::instance()->ActionInvoked(this->notification->id(), this->mIdentifier);
+	QString token;
+#ifdef QS_WAYLAND
+	// The token has to go out before ActionInvoked, and the caller may dismiss the notification
+	// as soon as this returns, so wait for it here.
+	token = qs::wayland::activation::requestActivationTokenNow();
+#endif
+
+	auto* server = NotificationServer::instance();
+	if (!token.isEmpty()) server->ActivationToken(this->notification->id(), token);
+	server->ActionInvoked(this->notification->id(), this->mIdentifier);
 
 	if (!this->notification->bindableResident().value()) {
 		this->notification->close(NotificationCloseReason::Dismissed);

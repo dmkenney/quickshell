@@ -1,5 +1,6 @@
 #include "activation.hpp"
 #include <functional>
+#include <memory>
 #include <utility>
 
 #include <private/qwaylanddisplay_p.h>
@@ -68,6 +69,15 @@ bool requestActivationToken(std::function<void(const QString&)> callback) {
 	);
 	window->requestXdgActivationToken(display->lastInputSerial());
 	return true;
+}
+
+QString requestActivationTokenNow() {
+	const auto token = std::make_shared<QString>();
+	if (!requestActivationToken([token](const QString& value) { *token = value; })) return {};
+
+	// The compositor answers the request with the done event, so a roundtrip delivers the token.
+	QtWaylandClient::QWaylandIntegration::instance()->display()->forceRoundTrip();
+	return *token;
 }
 
 void requestXdgActivationToken(QtWaylandClient::QWaylandWindow* window, quint32 serial) {

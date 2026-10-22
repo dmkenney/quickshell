@@ -14,6 +14,9 @@ namespace qs::wayland::activation {
 // Request a token using Qt's most recent input event. Returns false if unable to request a token.
 bool requestActivationToken(std::function<void(const QString&)> callback);
 
+// Like requestActivationToken, but waits for the token. Returns an empty string if unable to get one.
+QString requestActivationTokenNow();
+
 // Request an activation token for a window to be delivered via QWaylandWindow::xdgActivationTokenCreated
 void requestXdgActivationToken(QtWaylandClient::QWaylandWindow* window, quint32 serial);
 
